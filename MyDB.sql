@@ -94,19 +94,19 @@ select modelo_veiculo, nome_vendedor, data_venda_veiculo, valor_comissao_venda_v
 from venda_veiculo, vendedor, veiculo
 where veiculo_id_veiculo=id_veiculo and vendedor_id_vendedor=id_vendedor;
 
-create view visao2 as select
+create view vendas_set as select
 modelo_veiculo, valor_venda_veiculo
 from veiculo, venda_veiculo 
 where venda_veiculo.veiculo_id_veiculo=veiculo.id_veiculo and 
 month(data_venda_veiculo)='9';
 
-create view visao3 as select 
+create view vendedor_master as select 
 nome_vendedor from vendedor, venda_veiculo
 where venda_veiculo.vendedor_id_vendedor=vendedor.id_vendedor
 order by sum(valor_venda_veiculo);
 
 delimiter $$
-create function valorV (id_vendedor int) 
+create function valor_vendedor (id_vendedor int) 
 returns decimal(10,2)
 begin
 set @valorV='0';
@@ -118,7 +118,7 @@ delimiter ;
 
 
 delimiter $$
-create trigger inq_qtd_vendas after insert on venda_veiculo
+create trigger increment_vendas after insert on venda_veiculo
 for each row
 begin 
 update vendedor set
