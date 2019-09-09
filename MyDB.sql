@@ -94,12 +94,38 @@ select modelo_veiculo, nome_vendedor, data_venda_veiculo, valor_comissao_venda_v
 from venda_veiculo, vendedor, veiculo
 where veiculo_id_veiculo=id_veiculo and vendedor_id_vendedor=id_vendedor;
 
-create view setem as
-select modelo_veiculo, valor_venda_veiculo
-from veiculo, venda_veiculo
-where data_venda_veiculo between 2018-09-01 and 2018-09-31;
+create view visao2 as select
+modelo_veiculo, valor_venda_veiculo
+from veiculo, venda_veiculo 
+where venda_veiculo.veiculo_id_veiculo=veiculo.id_veiculo and 
+month(data_venda_veiculo)='9';
+
+create view visao3 as select 
+nome_vendedor from vendedor, venda_veiculo
+where venda_veiculo.vendedor_id_vendedor=vendedor.id_vendedor
+order by sum(valor_venda_veiculo);
+
+delimiter $$
+create function valorV (id_vendedor int) 
+returns decimal(10,2)
+begin
+set @valorV='0';
+select sum(valor_venda_veiculo) into @valorV from venda_veiculo 
+where vendedor_id_vendedor = id_vendedor;
+return @valorV;
+end $$
+delimiter ;
 
 
+delimiter $$
+create trigger inq_qtd_vendas after insert on venda_veiculo
+for each row
+begin 
+update vendedor set
+num_carros_vendidos_vendedor=num_carros_vendidos_vendedor+1
+where id_vendedor = NEW.vendedor_id_vendedor;
+end $$
+delimiter ;
 
 
 
